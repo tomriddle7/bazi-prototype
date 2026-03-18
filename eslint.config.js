@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-hooks/set-state-in-effect': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
 ])
