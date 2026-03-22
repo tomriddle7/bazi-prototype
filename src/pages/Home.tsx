@@ -36,6 +36,8 @@ import {
 } from '@/components/ui/field';
 import { DateTime, Interval } from 'luxon';
 import SaveHeader from '@/components/SaveHeader';
+import { unsubmittAble, BIRTH_DATE_RGX, BIRTH_TIME_RGX } from "@/lib/utils";
+import SajuLocalService from '@/providers/services/saju-local.service';
 
 const koreanSummerTimes = [
   Interval.fromDateTimes(DateTime.local(1948, 6, 1, 0, 0), DateTime.local(1948, 9, 13, 0, 0)),
@@ -204,9 +206,14 @@ const regionLong = [
   { label: '제주', value: 126.53747 }
 ];
 
+const REGION_LONG_KEY = 'region';
+const SUMMER_TIME_KEY = 'summer-time';
+
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const sajuLocalApi = new SajuLocalService();
 
   const [personInfo, setPersonInfo] = useState({
     name: '',
@@ -219,17 +226,14 @@ const Home = () => {
     yaja: false,
     longitude: 126.977902,
   });
+  const [regionLong, setRegionLong] = useState([]);
+  const [summerTime, setSummerTime] = useState([]);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const { birthDate, birthTime } = personInfo;
-    const date = birthDate.replace(/([0-9]{4})([0-9]{2})([0-9]{2})/g, "$1-$2-$3");
-    const time = birthTime.replace(/([0-9]{2})([0-9]{2})/g, "$1:$2");
     navigate('/result', {
       state: {
         ...personInfo,
-        birthDate: date,
-        birthTime: time,
         summerTime: inSummerTime(),
       }
     });
@@ -238,10 +242,10 @@ const Home = () => {
   const inSummerTime = () => {
     let result = false;
     const { birthDate, birthTime } = personInfo;
-    const date = birthDate.replace(/([0-9]{4})([0-9]{2})([0-9]{2})/g, "$1-$2-$3");
-    const time = birthTime.replace(/([0-9]{2})([0-9]{2})/g, "$1:$2");
+    const date = birthDate.replace(BIRTH_DATE_RGX, "$1-$2-$3");
+    const time = birthTime.replace(BIRTH_TIME_RGX, "$1:$2");
     const birthDateTime = DateTime.fromISO(`${date}T${time}`);
-    koreanSummerTimes.forEach((interval) => {
+    summerTime.forEach((interval) => {
       if (interval.contains(birthDateTime)) {
         result = true;
       }
@@ -249,51 +253,51 @@ const Home = () => {
     return result;
   };
 
-  const unsubmittAble = () => {
-    const {
-      name,
-      gender,
-      birthDate,
-      birthTime,
-      calendar,
-      longitude,
-    } = personInfo;
-
-    if (!name) return true;
-    if (gender !== 'male' && gender !== 'female') return true;
-    if (birthDate.length !== 8 || birthTime.length !== 4) return true;
-    const date = birthDate.replace(/([0-9]{4})([0-9]{2})([0-9]{2})/g, "$1-$2-$3");
-    const time = birthTime.replace(/([0-9]{2})([0-9]{2})/g, "$1:$2");
-    if (!DateTime.fromISO(`${date}T${time}`).isValid) return true;
-    if (calendar !== 'solar' && calendar !== 'lunar') return true;
-    if (!longitude) return true;
-    return false;
-  };
-
   useEffect(() => {
-    const personInfo = { ...location.state };
-    if (Object.keys(personInfo).length > 0) {
-      const {
-        name,
-        gender,
-        birthDate,
-        birthTime,
-        calendar,
-        hourKnown,
-        yaja,
-        longitude,
-      } = personInfo;
-      setPersonInfo({
-        name,
-        gender,
-        birthDate: birthDate.replace(/-/g, ""),
-        birthTime: birthTime.replace(/:/g, ""),
-        calendar,
-        hourKnown,
-        yaja,
-        longitude,
-      } as any);
-    }
+    (async () => {
+      let long = JSON.parse(sessionStorage.getItem(REGION_LONG_KEY) || '[]');
+      let summer = JSON.parse(sessionStorage.getItem(SUMMER_TIME_KEY) || '[]');
+      if (!long.length || !summer.length) {
+        [long, summer] = await Promise.all([
+          sajuLocalApi.fetchRegionList(),
+          sajuLocalApi.fetchSummerTime()
+        ]);
+        sessionStorage.setItem(REGION_LONG_KEY, JSON.stringify(long));
+        sessionStorage.setItem(SUMMER_TIME_KEY, JSON.stringify(summer));
+      }
+      setRegionLong(long);
+      const summerPeriod = summer.map(({ year, start, end }) => {
+        return Interval.fromDateTimes(
+          DateTime.local(year, start.month, start.day, start.hour, 0),
+          DateTime.local(year, end.month, end.day, end.hour, 0)
+        );
+      });
+      setSummerTime(summerPeriod);
+
+      const personInfo = { ...location.state };
+      if (Object.keys(personInfo).length > 0) {
+        const {
+          name,
+          gender,
+          birthDate,
+          birthTime,
+          calendar,
+          hourKnown,
+          yaja,
+          longitude,
+        } = personInfo;
+        setPersonInfo({
+          name,
+          gender,
+          birthDate: birthDate.replace(/-/g, ""),
+          birthTime: birthTime.replace(/:/g, ""),
+          calendar,
+          hourKnown,
+          yaja,
+          longitude,
+        } as any);
+      }
+    })();
   }, []);
 
   return (
@@ -434,7 +438,7 @@ const Home = () => {
           </div>
           {/* Bottom Button */}
           <Field className="py-4 bottom-0">
-            <Button className="w-full h-9 text-neutral-50 text-sm font-medium rounded-lg" onClick={(e: any) => handleSubmit(e)} disabled={unsubmittAble()}>만세력 보러가기</Button>
+            <Button className="w-full h-9 text-neutral-50 text-sm font-medium rounded-lg" onClick={handleSubmit} disabled={unsubmittAble(personInfo)}>만세력 보러가기</Button>
           </Field>
         </form>
       </main>
