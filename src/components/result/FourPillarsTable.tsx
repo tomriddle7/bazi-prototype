@@ -18,18 +18,9 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer";
 import { SexagenaryCard } from '@/components/result/SexagenaryCard';
-import { STANDARD_PRESET, getSaju, getLunarDate, getSolarDate, getSolarTermsForYear, calculateYearlyLuck, calculateMonthlyLuck, getStemElement, getBranchElement, getTenGodKey, getTenGodLabel } from '@gracefullight/saju';
-import { BIRTH_DATE_RGX, BIRTH_TIME_RGX, getDayGanji, drawerDataList, SEXAGENARY } from '@/lib/utils';
+import { getTenGodKey, getTenGodLabel } from '@gracefullight/saju';
+import { drawerDataList, SEXAGENARY } from '@/lib/utils';
 import { X } from 'lucide-react';
-
-import {
-    cn,
-    getYinYang,
-    getBirthDate,
-    regionLong,
-    STEMS,
-    BRANCHES,
-} from "@/lib/utils";
 
 const SajuDrawer = ({ data: { korean, hanja } }) => {
     return (

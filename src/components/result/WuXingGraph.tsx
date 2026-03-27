@@ -107,7 +107,7 @@ const WuXingGraph = ({ data, ilgan, tenGod }: any) => {
     };
 
     // 노드 렌더링 헬퍼 함수
-    const renderNode = (index) => {
+    const renderNode = (index: number) => {
         const key = chartOrder[index];
         const config = ELEMENTS_CONFIG[key];
         const percentage = chartData[key] || 0; // 0 ~ 100 사이 값

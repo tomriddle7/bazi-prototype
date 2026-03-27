@@ -194,9 +194,7 @@ const Result = () => {
 
     const changeSelectedYear = async (year) => {
         if (!monthLuck[year]) {
-            const monthlyLuck = await sajuApi.fetchMonthlyLuck({
-                year,
-            });
+            const monthlyLuck = await sajuApi.fetchMonthlyLuck(year);
             setMonthLuck({
                 ...monthLuck,
                 [year]: monthlyLuck,

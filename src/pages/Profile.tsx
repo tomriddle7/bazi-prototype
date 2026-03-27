@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
-import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
@@ -14,8 +11,6 @@ import { ProfileDeleteCard } from '@/components/result/ProfileCard';
 import { loadProfileList } from '@/lib/manageProfile';
 
 const Profile = () => {
-    const navigate = useNavigate();
-
     const [profileList, setProfileList] = useState(loadProfileList());
     const [order, setOrder] = useState('latest');
 

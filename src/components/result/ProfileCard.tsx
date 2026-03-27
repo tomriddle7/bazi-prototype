@@ -22,7 +22,7 @@ import {
 } from "@/lib/utils";
 import { deleteProfile } from "@/lib/manageProfile";
 
-const getProfileImg = (info) => {
+const getProfileImg = (info: any) => {
   const yeongan = (Number(STEMS.indexOf(info.year[0])) + 1) % 10;
   const yeonji = Number(BRANCHES.indexOf(info.year[1])) + 1;
   const imgName = String((Math.abs(yeongan - yeonji) / 2) * 10 + yeongan);
@@ -30,11 +30,11 @@ const getProfileImg = (info) => {
   return `${path}/assets/profile/${imgName.padStart(2, "0")}_profile.png`;
 };
 
-const getYinYangColor = (info) => {
+const getYinYangColor = (info: { calendar: string }) => {
   return info.calendar === "solar" ? "text-[#EF5350]" : "text-[#5CADFF]";
 };
 
-const ProfileBasic = ({ info }) => {
+const ProfileBasic = ({ info }: any) => {
   return (
     <>
       <img
@@ -75,7 +75,7 @@ const ProfileBasic = ({ info }) => {
   );
 };
 
-const SaveIcon = ({ info }) => {
+const SaveIcon = ({ info }: any) => {
   return (
     <Link to="/" state={info}>
       <Settings size={16} className="ml-auto" />
@@ -83,7 +83,7 @@ const SaveIcon = ({ info }) => {
   );
 };
 
-const DeleteIcon = ({ info }) => {
+const DeleteIcon = ({ info }: any) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -120,7 +120,7 @@ const DeleteIcon = ({ info }) => {
   );
 };
 
-const ProfileSaveCard = ({ info }) => {
+const ProfileSaveCard = ({ info }: any) => {
   return (
     <div className="flex items-center px-4 py-3 gap-1 border-1 border-solid border-neutral-200 rounded-lg">
       <ProfileBasic info={info} />
@@ -129,7 +129,7 @@ const ProfileSaveCard = ({ info }) => {
   );
 };
 
-const ProfileDeleteCard = ({ info }) => {
+const ProfileDeleteCard = ({ info }: any) => {
   return (
     <div className="flex items-center px-4 py-3 gap-1 border-1 border-solid border-neutral-200 rounded-lg">
       <Link className="flex grow items-center gap-1" to="/" state={info}>

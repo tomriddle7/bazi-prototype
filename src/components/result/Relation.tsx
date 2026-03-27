@@ -7,13 +7,13 @@ import {
 } from "@/components/ui/table";
 import { SexagenaryCard } from "@/components/result/SexagenaryCard";
 
-const Relation = ({ pillar, data: { combinations, punishments, clashes, destructions, harms } }) => {
+const Relation = ({ pillar, data: { combinations, punishments, clashes, destructions, harms } }: any) => {
     return (
         <>
             <div className="w-full rounded-lg border border-neutral-200 overflow-hidden">
                 <Table>
                     <TableBody>
-                        {combinations.filter((comb) => comb.type.key === 'stemCombination').map((comb, index) => (
+                        {combinations.filter((comb: any) => comb.type.key === 'stemCombination').map((comb: any, index: number) => (
                             <TableRow key={`stem-comb-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">합</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{comb.positions.indexOf("hour") > -1 && comb.pair[comb.positions.indexOf("hour")]}</TableCell>
@@ -68,7 +68,7 @@ const Relation = ({ pillar, data: { combinations, punishments, clashes, destruct
                                 />
                             </TableCell>
                         </TableRow>
-                        {combinations.filter((comb) => comb.type.key !== 'stemCombination' && comb.isComplete !== false).map((comb, index) => (
+                        {combinations.filter((comb: any) => comb.type.key !== 'stemCombination' && comb.isComplete !== false).map((comb: any, index: number) => (
                             <TableRow key={`branch-comb-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">합</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{comb.positions.indexOf("hour") > -1 && comb.pair[comb.positions.indexOf("hour")]}</TableCell>
@@ -77,7 +77,7 @@ const Relation = ({ pillar, data: { combinations, punishments, clashes, destruct
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{comb.positions.indexOf("year") > -1 && comb.pair[comb.positions.indexOf("year")]}</TableCell>
                             </TableRow>
                         ))}
-                        {punishments.map((rel, index) => (
+                        {punishments.map((rel: any, index: number) => (
                             <TableRow key={`branch-punish-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">형</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("hour") > -1 && rel.branches[rel.positions.indexOf("hour")]}</TableCell>
@@ -86,7 +86,7 @@ const Relation = ({ pillar, data: { combinations, punishments, clashes, destruct
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("year") > -1 && rel.branches[rel.positions.indexOf("year")]}</TableCell>
                             </TableRow>
                         ))}
-                        {clashes.map((rel, index) => (
+                        {clashes.map((rel: any, index: number) => (
                             <TableRow key={`branch-clash-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">충</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("hour") > -1 && rel.pair[rel.positions.indexOf("hour")]}</TableCell>
@@ -95,7 +95,7 @@ const Relation = ({ pillar, data: { combinations, punishments, clashes, destruct
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("year") > -1 && rel.pair[rel.positions.indexOf("year")]}</TableCell>
                             </TableRow>
                         ))}
-                        {destructions.map((rel, index) => (
+                        {destructions.map((rel: any, index: number) => (
                             <TableRow key={`branch-des-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">파</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("hour") > -1 && rel.pair[rel.positions.indexOf("hour")]}</TableCell>
@@ -104,7 +104,7 @@ const Relation = ({ pillar, data: { combinations, punishments, clashes, destruct
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("year") > -1 && rel.pair[rel.positions.indexOf("year")]}</TableCell>
                             </TableRow>
                         ))}
-                        {harms.map((rel, index) => (
+                        {harms.map((rel: any, index: number) => (
                             <TableRow key={`branch-harm-${index}`}>
                                 <TableHead className="text-center text-xs font-medium h-7" scope="row">해</TableHead>
                                 <TableCell className="text-center text-xs font-medium h-7" scope="col">{rel.positions.indexOf("hour") > -1 && rel.pair[rel.positions.indexOf("hour")]}</TableCell>

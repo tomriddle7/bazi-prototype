@@ -1,4 +1,4 @@
-const Strength = ({ data: { strength: { level, score }, yongshen } }) => {
+const Strength = ({ data: { strength: { level, score }, yongshen } }: { data: { strength: { level: any, score: number }, yongshen: any } }) => {
 
     // viewBox 기준 내부 고정 수치 (이 수치들은 화면 크기에 맞춰 자동 스케일링 됨)
     const size = 200;
@@ -11,7 +11,7 @@ const Strength = ({ data: { strength: { level, score }, yongshen } }) => {
 
     const d = `M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`;
 
-    const getDayMaster = (level) => {
+    const getDayMaster = (level: { korean: string; }) => {
         switch (level.korean) {
             case '극약':
                 return '내 에너지가 많이 약한 상태예요. 주변의 도움과 지지가 꼭 필요한 시기예요.';
