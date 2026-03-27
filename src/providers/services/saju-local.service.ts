@@ -1,12 +1,190 @@
-import type { AxiosInstance } from 'axios';
 import ApiService from './api.service';
+import { createLuxonAdapter } from "@gracefullight/saju/adapters/luxon";
+import { STANDARD_PRESET, getSaju, getSolarDate, getSolarTermsForYear, calculateYearlyLuck, calculateMonthlyLuck } from "@gracefullight/saju";
+import { DateTime, Interval } from "luxon";
+import { analyzeSinsals } from '@/sinsalEngine';
 
 export default class SajuLocalService extends ApiService {
-    $api: AxiosInstance;
+    private adapter: any = null;
+    private adapterPromise: Promise<any> | null = null;
+
+    private summerTimes = [
+        {
+            "year": 1948,
+            "start": {
+                "month": 6,
+                "day": 1,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 13,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1949,
+            "start": {
+                "month": 4,
+                "day": 3,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 11,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1950,
+            "start": {
+                "month": 4,
+                "day": 1,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 10,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1951,
+            "start": {
+                "month": 5,
+                "day": 6,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 9,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1955,
+            "start": {
+                "month": 5,
+                "day": 5,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 9,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1956,
+            "start": {
+                "month": 5,
+                "day": 20,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 30,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1957,
+            "start": {
+                "month": 5,
+                "day": 5,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 22,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1958,
+            "start": {
+                "month": 5,
+                "day": 4,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 21,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1959,
+            "start": {
+                "month": 5,
+                "day": 3,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 20,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1960,
+            "start": {
+                "month": 5,
+                "day": 1,
+                "hour": 0
+            },
+            "end": {
+                "month": 9,
+                "day": 18,
+                "hour": 0
+            }
+        },
+        {
+            "year": 1987,
+            "start": {
+                "month": 5,
+                "day": 10,
+                "hour": 2
+            },
+            "end": {
+                "month": 10,
+                "day": 11,
+                "hour": 3
+            }
+        },
+        {
+            "year": 1988,
+            "start": {
+                "month": 5,
+                "day": 8,
+                "hour": 2
+            },
+            "end": {
+                "month": 10,
+                "day": 9,
+                "hour": 3
+            }
+        }
+    ];
 
     constructor() {
         super();
-        this.$api = this.register(`${import.meta.env.VITE_API_URL}/api/v1/saju`);
+    }
+
+    // 어댑터 지연 초기화 및 동시성 제어 메서드
+    private async getAdapter() {
+        if (this.adapter) {
+            return this.adapter;
+        }
+
+        if (!this.adapterPromise) {
+            this.adapterPromise = createLuxonAdapter().then(newAdapter => {
+                this.adapter = newAdapter;
+                return newAdapter;
+            });
+        }
+
+        return this.adapterPromise;
     }
 
     async fetchRegionList() {
@@ -817,201 +995,105 @@ export default class SajuLocalService extends ApiService {
     }
 
     async fetchSummerTime() {
-        return [
-            {
-                "year": 1948,
-                "start": {
-                    "month": 6,
-                    "day": 1,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 13,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1949,
-                "start": {
-                    "month": 4,
-                    "day": 3,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 11,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1950,
-                "start": {
-                    "month": 4,
-                    "day": 1,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 10,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1951,
-                "start": {
-                    "month": 5,
-                    "day": 6,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 9,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1955,
-                "start": {
-                    "month": 5,
-                    "day": 5,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 9,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1956,
-                "start": {
-                    "month": 5,
-                    "day": 20,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 30,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1957,
-                "start": {
-                    "month": 5,
-                    "day": 5,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 22,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1958,
-                "start": {
-                    "month": 5,
-                    "day": 4,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 21,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1959,
-                "start": {
-                    "month": 5,
-                    "day": 3,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 20,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1960,
-                "start": {
-                    "month": 5,
-                    "day": 1,
-                    "hour": 0
-                },
-                "end": {
-                    "month": 9,
-                    "day": 18,
-                    "hour": 0
-                }
-            },
-            {
-                "year": 1987,
-                "start": {
-                    "month": 5,
-                    "day": 10,
-                    "hour": 2
-                },
-                "end": {
-                    "month": 10,
-                    "day": 11,
-                    "hour": 3
-                }
-            },
-            {
-                "year": 1988,
-                "start": {
-                    "month": 5,
-                    "day": 8,
-                    "hour": 2
-                },
-                "end": {
-                    "month": 10,
-                    "day": 9,
-                    "hour": 3
-                }
-            }
-        ];
+        return this.summerTimes;
     }
 
     async fetchAnalyzedSaju(params: any) {
-        const { data } = this.unpackResponse(
-            await this.$api.post(
-                'analyze',
-                params
-            )
+        let [fYear, fMonth, fDay] = params.birthDate.split('-');
+        const [hour, minute] = params.birthTime.split(':');
+        if (params.calendar === 'lunar') {
+            const { year, month, day } = getSolarDate(fYear, fMonth, fDay);
+            [fYear, fMonth, fDay] = [year, month, day];
+        }
+        let birthDateTime = DateTime.fromObject(
+            {
+                year: fYear,
+                month: fMonth,
+                day: fDay,
+                hour,
+                minute
+            },
+            { zone: "Asia/Seoul" }
         );
-        return data;
+
+        const summerPeriod = this.summerTimes.map(({ year, start, end }) => {
+            return Interval.fromDateTimes(
+                DateTime.local(year, start.month, start.day, start.hour, 0),
+                DateTime.local(year, end.month, end.day, end.hour, 0)
+            );
+        });
+        let inSummerTime = false;
+        const birthDate = DateTime.fromISO(`${params.birthDate}T${params.birthTime}`);
+        summerPeriod.forEach((interval) => {
+            if (interval.contains(birthDate)) {
+                inSummerTime = true;
+            }
+        });
+        if (inSummerTime) birthDateTime = birthDateTime.minus({ hours: 1 });
+
+        const adapter = await this.getAdapter();
+        const {
+            pillars,
+            tenGods,
+            twelveStages,
+            sinsals: {
+                summary
+            },
+            majorLuck,
+            relations,
+            strength,
+            yongShen,
+        } = getSaju(birthDateTime, {
+            adapter,
+            preset: { ...STANDARD_PRESET, dayBoundary: params.yaja ? "midnight" : "zi23" },
+            gender: params.gender,
+            longitudeDeg: params.longitude
+        });
+        const { sinsals: ssal, sinsals12: ssal12 } = analyzeSinsals({
+            ...pillars,
+            gender: params.gender,
+            hourKnown: params.hourKnown
+        });
+        return {
+            gongmang: summary.gongmang || [],
+            pillars,
+            tenGods,
+            twelveStages,
+            sinsals: ssal,
+            sinsals12: ssal12,
+            majorLuck,
+            relations,
+            strength,
+            yongShen,
+        };
     }
 
-    async fetchYearlyLuck(params: any) {
-        const { data: { yearlyLuck } } = this.unpackResponse(
-            await this.$api.post(
-                'yearly-luck',
-                params
-            )
-        );
-        return yearlyLuck;
+    async fetchYearlyLuck(params: { birthYear: number, startAge: number }) {
+        const startAge = params.birthYear + params.startAge - 1;
+        return calculateYearlyLuck(params.birthYear, startAge, startAge + 9);
     }
 
-    async fetchMonthlyLuck(params: any) {
-        const { data: { monthlyLuck } } = this.unpackResponse(
-            await this.$api.post(
-                'monthly-luck',
-                params
-            )
-        );
-        return monthlyLuck;
+    async fetchMonthlyLuck(year: number) {
+        const monthdata = [...calculateMonthlyLuck(Number(year) - 1, 12, 12), ...calculateMonthlyLuck(Number(year), 1, 11)];
+        return monthdata.map((
+            { year, month, stem, branch, pillar }
+        ) => (
+            { year, month: (month % 12) + 1, stem, branch, pillar }
+        ));
     }
 
     async fetchSolarTerms(year: number) {
-        const { data: { terms } } = this.unpackResponse(
-            await this.$api.get(`solar-terms/${year}`)
+        const adapter = await this.getAdapter();
+        const solarTermsList = getSolarTermsForYear(year, { adapter, timezone: "Asia/Seoul" });
+        const newList = solarTermsList.map(term => {
+            return {
+                date: `${term.date.year}-${term.date.month.toString().padStart(2, '0')}-${term.date.day.toString().padStart(2, '0')}`,
+                ...term.term
+            }
+        })
+        return Object.fromEntries(
+            newList.map((value) => [value.date, value])
         );
-        return terms;
     }
 
     protected unpackResponse = (response: any): any => {
