@@ -53,7 +53,7 @@ const SaveHeader = ({ title, personInfo, visible: { back = true, save = true, my
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-                <Link to="/my-profile" className={cn("size-9 inline-flex items-center justify-center", !myprofile && "invisible")}>
+                <Link to="/profile" className={cn("size-9 inline-flex items-center justify-center", !myprofile && "invisible")}>
                     <Archive size={20} />
                 </Link>
             </div>

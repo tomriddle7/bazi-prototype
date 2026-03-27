@@ -213,7 +213,7 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const sajuLocalApi = new SajuLocalService();
+  const sajuApi = new SajuLocalService();
 
   const [personInfo, setPersonInfo] = useState({
     name: '',
@@ -259,8 +259,8 @@ const Home = () => {
       let summer = JSON.parse(sessionStorage.getItem(SUMMER_TIME_KEY) || '[]');
       if (!long.length || !summer.length) {
         [long, summer] = await Promise.all([
-          sajuLocalApi.fetchRegionList(),
-          sajuLocalApi.fetchSummerTime()
+          sajuApi.fetchRegionList(),
+          sajuApi.fetchSummerTime()
         ]);
         sessionStorage.setItem(REGION_LONG_KEY, JSON.stringify(long));
         sessionStorage.setItem(SUMMER_TIME_KEY, JSON.stringify(summer));
