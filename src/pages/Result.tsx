@@ -14,14 +14,11 @@ import {
     getLunarDate,
     getStemElement,
     getBranchElement,
-    getTenGodKey,
-    getTenGodLabel,
 } from "@gracefullight/saju";
 import {
     BIRTH_DATE_RGX,
     BIRTH_TIME_RGX,
     getDayGanji,
-    SEXAGENARY,
 } from "@/lib/utils";
 import SajuLocalService from "@/providers/services/saju-local.service";
 
@@ -51,26 +48,6 @@ const Result = () => {
     const [yongshen, setYongshen] = useState({});
 
     const [tab, setTab] = useState(0);
-
-    const zizangan = {
-        '子': '壬癸', // 임계
-        '丑': '癸辛己', // 계신기
-        '寅': '戊丙甲', // 무병값
-        '卯': '甲乙', // 갑을
-        '辰': '乙癸戊', // 을계무
-        '巳': '戊庚丙', // 무경병
-        '午': '丙己丁', // 병기정
-        '未': '丁乙己', // 정을기
-        '申': '戊壬庚', // 기무임경
-        '酉': '庚辛', // 경신
-        '戌': '辛丁戊', // 신정무
-        '亥': '戊甲壬', // 무갑임
-    };
-
-    const getZizanganKorean = (dayMaster, stem) => {
-        const hiddenStems = getTenGodKey(dayMaster, stem);
-        return `${SEXAGENARY.stems[stem].korean}(${getTenGodLabel(hiddenStems).korean})`;
-    };
 
     const handleSubmit = async () => {
         const currentYear = DateTime.now().year;
@@ -114,18 +91,6 @@ const Result = () => {
             changeSelectedYear(currentYear),
             getCurrentSolarTerms(currentYear)
         ]);
-        // 달력 계산
-        // const solarTermsList = getSolarTermsForYear(currentYear, { adapter, timezone: "Asia/Seoul" });
-        // const newList = solarTermsList.map(term => {
-        //   return {
-        //     date: `${term.date.year}-${term.date.month.toString().padStart(2, '0')}-${term.date.day.toString().padStart(2, '0')}`,
-        //     ...term.term
-        //   }
-        // })
-        // const solarTerms = Object.fromEntries(
-        //   newList.map((value) => [value.date, value])
-        // );
-        // setYearTerms(solarTerms);
 
         saveWuXingData(pillars.hour + pillars.day + pillars.month + pillars.year);
         saveTenGodData(tenGods);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HelpCircle, X } from 'lucide-react';
@@ -223,8 +224,8 @@ const Home = () => {
     yaja: false,
     longitude: 126.977902,
   });
-  const [regionLong, setRegionLong] = useState([]);
-  const [summerTime, setSummerTime] = useState([]);
+  const [regionLong, setRegionLong] = useState<{label: string, value: number }[]>([]);
+  const [summerTime, setSummerTime] = useState<(Interval<true> | Interval<false>)[]>([]);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -263,7 +264,7 @@ const Home = () => {
         sessionStorage.setItem(SUMMER_TIME_KEY, JSON.stringify(summer));
       }
       setRegionLong(long);
-      const summerPeriod = summer.map(({ year, start, end }) => {
+      const summerPeriod = summer.map(({ year, start, end }: any) => {
         return Interval.fromDateTimes(
           DateTime.local(year, start.month, start.day, start.hour, 0),
           DateTime.local(year, end.month, end.day, end.hour, 0)
@@ -409,7 +410,7 @@ const Home = () => {
               {/* 태어난 지역 */}
               <Field className="gap-1">
                 <FieldLabel className="text-sm font-medium text-neutral-950">태어난 지역</FieldLabel>
-                <Select items={regionLong} defaultValue={personInfo.longitude} onValueChange={(e) => setPersonInfo({ ...personInfo, longitude: e })}>
+                <Select items={regionLong} defaultValue={personInfo.longitude} onValueChange={(e) => setPersonInfo({ ...personInfo, longitude: e as number })}>
                   <SelectTrigger className="!h-9 border-neutral-200 rounded-lg">
                     <SelectValue placeholder="서울" />
                   </SelectTrigger>

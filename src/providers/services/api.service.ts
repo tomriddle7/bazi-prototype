@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import axios, { type AxiosInstance } from 'axios';
 
 export default abstract class ApiService {

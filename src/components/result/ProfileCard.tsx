@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
 import {
   cn,
@@ -21,6 +22,19 @@ import {
   BRANCHES,
 } from "@/lib/utils";
 import { deleteProfile } from "@/lib/manageProfile";
+
+export interface ProfileInfo {
+  name: string;
+  year: string; // 예: "己巳"
+  day: string;
+  calendar: "solar" | "lunar" | string;
+  longitude: number;
+  [key: string]: any;
+}
+
+export interface ProfileCardProps {
+  info: ProfileInfo;
+}
 
 const getProfileImg = (info: any) => {
   const yeongan = (Number(STEMS.indexOf(info.year[0])) + 1) % 10;
@@ -86,8 +100,10 @@ const SaveIcon = ({ info }: any) => {
 const DeleteIcon = ({ info }: any) => {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Trash size={16} className="ml-auto" />
+      <AlertDialogTrigger>
+        <Button variant="ghost">
+          <Trash size={16} className="ml-auto" />
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

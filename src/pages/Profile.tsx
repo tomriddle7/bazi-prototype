@@ -19,7 +19,7 @@ const Profile = () => {
             case 'latest':
                 return profileList;
             case 'namedesc':
-                return profileList.toSorted((a, b) => {
+                return profileList.toSorted((a: { name: number; }, b: { name: number; }) => {
                     if (a.name > b.name) return 1;
                     if (a.name < b.name) return -1;
                     return 0;
@@ -45,7 +45,7 @@ const Profile = () => {
             <SaveHeader title="사주프로필" personInfo={{}} visible={{ save: false, myprofile: false }} />
             <main className="flex flex-col min-h-screen mx-auto relative px-5">
                 <section className="mt-6 mb-3">
-                    <Select items={[{ label: '최신등록순', value: 'latest' }, { label: '이름순', value: 'namedesc' }]} defaultValue={order} onValueChange={(e) => setOrder(e)}>
+                    <Select items={[{ label: '최신등록순', value: 'latest' }, { label: '이름순', value: 'namedesc' }]} defaultValue={order} onValueChange={(e) => setOrder(e as string)}>
                         <SelectTrigger className="w-[120px] !h-10 border-slate-200 rounded-lg text-slate-600 focus:ring-0">
                             <SelectValue placeholder="최신등록순" />
                         </SelectTrigger>
@@ -56,7 +56,7 @@ const Profile = () => {
                     </Select>
                 </section>
                 <section className="gap-3 flex flex-col">
-                    {toSortedProfileList().map((profile, i) => {
+                    {toSortedProfileList().map((profile: any, i: number) => {
                         return <ProfileDeleteCard key={i} info={profile} />
                     })}
                 </section>

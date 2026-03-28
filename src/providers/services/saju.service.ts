@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import ApiService, { ApiError } from './api.service';
+import ApiService from './api.service';
 
 export default class SajuService extends ApiService {
     $v1_api: AxiosInstance;

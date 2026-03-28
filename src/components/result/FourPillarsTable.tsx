@@ -22,7 +22,20 @@ import { getTenGodKey, getTenGodLabel } from '@gracefullight/saju';
 import { drawerDataList, SEXAGENARY } from '@/lib/utils';
 import { X } from 'lucide-react';
 
-const SajuDrawer = ({ data: { korean, hanja } }) => {
+export interface SajuTerm {
+    korean: string;
+    hanja: string;
+    key?: string;
+}
+
+export interface SinsalItem {
+    name: string;
+    hanja: string;
+}
+
+const SajuDrawer = ({ data }: { data: SajuTerm }) => {
+    const { korean, hanja } = data;
+
     return (
         <Drawer>
             <DrawerTrigger asChild>
@@ -71,9 +84,18 @@ const FourPillarsTable = ({ tenGod, pillar, twelveStage, gongmang, sinsal, sinsa
     const zizangan: {
         [key: string]: string;
     } = {
-        '子': '壬癸', '丑': '癸辛己', '寅': '戊丙甲', '卯': '甲乙',
-        '辰': '乙癸戊', '巳': '戊庚丙', '午': '丙己丁', '未': '丁乙己',
-        '申': '戊壬庚', '酉': '庚辛', '戌': '辛丁戊', '亥': '戊甲壬',
+        '子': '壬癸', // 임계
+        '丑': '癸辛己', // 계신기
+        '寅': '戊丙甲', // 무병값
+        '卯': '甲乙', // 갑을
+        '辰': '乙癸戊', // 을계무
+        '巳': '戊庚丙', // 무경병
+        '午': '丙己丁', // 병기정
+        '未': '丁乙己', // 정을기
+        '申': '戊壬庚', // 기무임경
+        '酉': '庚辛', // 경신
+        '戌': '辛丁戊', // 신정무
+        '亥': '戊甲壬', // 무갑임
     };
 
     const getZizanganKorean = (dayMaster: string, stem: string) => {
@@ -253,7 +275,7 @@ const FourPillarsTable = ({ tenGod, pillar, twelveStage, gongmang, sinsal, sinsa
                     <TableRow>
                         {/* <TableHead scope="row">신살</TableHead> */}
                         <TableCell className="py-1">
-                            {sinsal?.hour?.map((item, index) => {
+                            {sinsal?.hour?.map((item: SinsalItem, index: number) => {
                                 return <div key={`h-${index}`}>
                                     <SajuDrawer key={`h-${index}`} data={{
                                         korean: item.name,
@@ -263,7 +285,7 @@ const FourPillarsTable = ({ tenGod, pillar, twelveStage, gongmang, sinsal, sinsa
                             })}
                         </TableCell>
                         <TableCell className="py-1">
-                            {sinsal?.day?.map((item, index) => {
+                            {sinsal?.day?.map((item: SinsalItem, index: number) => {
                                 return <div key={`d-${index}`}>
                                     <SajuDrawer data={{
                                         korean: item.name,
@@ -273,7 +295,7 @@ const FourPillarsTable = ({ tenGod, pillar, twelveStage, gongmang, sinsal, sinsa
                             })}
                         </TableCell>
                         <TableCell className="py-1">
-                            {sinsal?.month?.map((item, index) => {
+                            {sinsal?.month?.map((item: SinsalItem, index: number) => {
                                 return <div key={`m-${index}`}>
                                     <SajuDrawer data={{
                                         korean: item.name,
@@ -283,7 +305,7 @@ const FourPillarsTable = ({ tenGod, pillar, twelveStage, gongmang, sinsal, sinsa
                             })}
                         </TableCell>
                         <TableCell className="py-1">
-                            {sinsal?.year?.map((item, index) => {
+                            {sinsal?.year?.map((item: SinsalItem, index: number) => {
                                 return <div key={`y-${index}`}>
                                     <SajuDrawer data={{
                                         korean: item.name,

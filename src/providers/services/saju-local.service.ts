@@ -1045,7 +1045,7 @@ export default class SajuLocalService extends ApiService {
             yongShen,
         } = getSaju(birthDateTime, {
             adapter,
-            preset: { ...STANDARD_PRESET, dayBoundary: params.yaja ? "midnight" : "zi23" },
+            preset: { ...STANDARD_PRESET, dayBoundary: (params.yaja ? "midnight" : "zi23") as any },
             gender: params.gender,
             longitudeDeg: params.longitude
         });
@@ -1053,7 +1053,19 @@ export default class SajuLocalService extends ApiService {
             ...pillars,
             gender: params.gender,
             hourKnown: params.hourKnown
-        });
+        } as any);
+        console.log(JSON.stringify({
+            pillars,
+            tenGods,
+            twelveStages,
+            gongmang: summary.gongmang || [],
+            majorLuck,
+            relations,
+            strength,
+            yongShen,
+            sinsals: ssal,
+            sinsals12: ssal12,
+        }))
         return {
             gongmang: summary.gongmang || [],
             pillars,
