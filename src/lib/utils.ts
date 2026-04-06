@@ -20,15 +20,26 @@ export const getBirthDate = (info: { birthDate: string; birthTime: string; gende
 };
 
 export const getDayGanji = (year: number, month: number, day: number) => {
-  const gYear = month < 3 ? year - 1 : year;
-  const gMonth = month < 3 ? month + 12 : month;
-  const gDay = day;
-  const cYear = parseInt(String(gYear / 100));
-  const nYear = gYear % 100;
-  const stem = 4 * cYear + Math.floor(cYear / 4) + 5 * nYear + Math.floor(nYear / 4) + Math.floor((3 * gMonth + 3) / 5) + gDay + 7;
-  const gStem = SEXAGENARY.stems[STEMS[(stem - 1) % 10]];
-  const branch = 8 * cYear + Math.floor(cYear / 4) + 5 * nYear + Math.floor(nYear / 4) + 6 * gMonth + Math.floor((3 * gMonth + 3) / 5) + gDay + 1;
-  const gBranch = SEXAGENARY.branches[BRANCHES[(branch - 1) % 12]];
+  // 타임존(Timezone) 차이로 인한 하루 오차를 막기 위해 UTC 기준으로 날짜를 세팅합니다.
+  const targetDate = new Date(Date.UTC(year, month - 1, day));
+
+  // 기준일: 1970년 1월 1일 (신사일)
+  const epochDate = new Date(Date.UTC(1970, 0, 1));
+
+  // 두 날짜 사이의 정확한 '일(Day)' 차이를 구합니다.
+  const diffTime = targetDate.getTime() - epochDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  // 음수(1970년 이전)도 안전하게 순환 처리할 수 있는 모듈로 함수
+  const getSafeIndex = (value: number, mod: number) => ((value % mod) + mod) % mod;
+
+  // 1970년 1월 1일 기준: 신(辛)은 천간 8번째(인덱스 7), 사(巳)는 지지 6번째(인덱스 5)
+  const stemIndex = getSafeIndex(diffDays + 7, 10);
+  const branchIndex = getSafeIndex(diffDays + 5, 12);
+
+  const gStem = SEXAGENARY.stems[STEMS[stemIndex]];
+  const gBranch = SEXAGENARY.branches[BRANCHES[branchIndex]];
+
   return gStem.korean + gBranch.korean;
 };
 
