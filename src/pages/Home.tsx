@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HelpCircle, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -224,7 +224,24 @@ const Home = () => {
     yaja: false,
     longitude: 126.977902,
   });
-  const [regionLong, setRegionLong] = useState<{label: string, value: number }[]>([]);
+  const birthTimeRef = useRef<HTMLInputElement>(null);
+
+  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    setPersonInfo((prev) => ({ ...prev, birthDate: digits }));
+
+    // 8자리를 새로 다 입력했을 때만 시간 입력칸으로 자동 포커스 이동
+    // (이미 8자리인 상태에서 중간 숫자를 수정할 때는 포커스가 튀지 않도록 방지)
+    if (personInfo.birthDate.length < 8 && digits.length === 8 && personInfo.hourKnown) {
+      birthTimeRef.current?.focus();
+    }
+  };
+
+  const handleBirthTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setPersonInfo((prev) => ({ ...prev, birthTime: digits }));
+  };
+  const [regionLong, setRegionLong] = useState<{ label: string, value: number }[]>([]);
   const [summerTime, setSummerTime] = useState<(Interval<true> | Interval<false>)[]>([]);
 
   const handleSubmit = async (event: any) => {
@@ -249,6 +266,19 @@ const Home = () => {
       }
     });
     return result;
+  };
+
+  const formatBirthDate = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    if (digits.length <= 4) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+  };
+
+  const formatBirthTime = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length <= 2) return digits;
+    return `${digits.slice(0, 2)}:${digits.slice(2)}`;
   };
 
   useEffect(() => {
@@ -351,19 +381,25 @@ const Home = () => {
                   </Select>
                   <Input
                     type="text"
+                    inputMode="numeric"
+                    placeholder="YYYY-MM-DD"
                     className="flex-1 h-9 border-neutral-200 rounded-lg focus-visible:ring-1 focus-visible:ring-neutral-500"
-                    maxLength={8}
-                    pattern="[0-9]+"
-                    value={personInfo.birthDate}
-                    onChange={(e) => setPersonInfo({ ...personInfo, birthDate: e.target.value })}
+                    maxLength={10}
+                    pattern="\d{4}-\d{2}-\d{2}"
+                    value={formatBirthDate(personInfo.birthDate)}
+                    onChange={handleBirthDateChange}
                   />
                   <Input
+                    ref={birthTimeRef}
                     type="text"
+                    inputMode="numeric"
+                    placeholder="HH:MM"
                     className="flex-1 h-9 border-neutral-200 rounded-lg focus-visible:ring-1 focus-visible:ring-neutral-500"
-                    maxLength={4}
-                    pattern="[0-9]+"
-                    value={personInfo.birthTime}
-                    onChange={(e) => setPersonInfo({ ...personInfo, birthTime: e.target.value })}
+                    maxLength={5}
+                    pattern="\d{2}:\d{2}"
+                    disabled={!personInfo.hourKnown}
+                    value={personInfo.hourKnown ? formatBirthTime(personInfo.birthTime) : ''}
+                    onChange={handleBirthTimeChange}
                   />
                 </div>
                 <div className="flex items-center h-6 gap-4">
