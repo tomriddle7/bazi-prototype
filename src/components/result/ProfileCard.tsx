@@ -36,12 +36,16 @@ export interface ProfileCardProps {
   info: ProfileInfo;
 }
 
+const profileImages = import.meta.glob<string>("/src/assets/profile/*_profile.png", {
+  eager: true,
+  import: "default",
+});
+
 const getProfileImg = (info: any) => {
   const yeongan = (Number(STEMS.indexOf(info.year[0])) + 1) % 10;
   const yeonji = Number(BRANCHES.indexOf(info.year[1])) + 1;
-  const imgName = String((Math.abs(yeongan - yeonji) / 2) * 10 + yeongan);
-  const path = import.meta.env.PROD ? import.meta.env.BASE_URL : "/src";
-  return `${path}/assets/profile/${imgName.padStart(2, "0")}_profile.png`;
+  const imgName = String((Math.abs(yeongan - yeonji) / 2) * 10 + yeongan).padStart(2, "0");
+  return profileImages[`/src/assets/profile/${imgName}_profile.png`];
 };
 
 const getYinYangColor = (info: { calendar: string }) => {

@@ -56,6 +56,19 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: false,
+      rolldownOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            const isProfileImg =
+              assetInfo.originalFileNames.some((file) => /[\\/]assets[\\/]profile[\\/]/.test(file)) ||
+              assetInfo.names.some((name) => /_profile\.png$/i.test(name));
+            if (isProfileImg) {
+              return 'assets/profile/[name][extname]';
+            }
+            return 'assets/[name]-[hash][extname]';
+          },
+        },
+      },
     },
     base,
   };
