@@ -14,13 +14,35 @@ import {
     getLunarDate,
     getStemElement,
     getBranchElement,
+    type Element,
+    type FourPillarsTenGods,
+    type LuckPillar,
+    type PillarPosition,
+    type RelationsResult,
+    type SajuResult,
+    type SolarTerm,
+    type StrengthResult,
+    type TenGodKey,
+    type TwelveStagesResult,
+    type YongShenResult,
 } from "@gracefullight/saju";
+import type { SinsalAnalysisResult } from "@/sinsalEngine";
 import {
     BIRTH_DATE_RGX,
     BIRTH_TIME_RGX,
     getDayGanji,
 } from "@/lib/utils";
 import SajuLocalService from "@/providers/services/saju-local.service";
+
+interface MonthlyLuckItem {
+    year: number;
+    month: number;
+    stem: string;
+    branch: string;
+    pillar: string;
+}
+
+type SolarTermEntry = SolarTerm & { date: string };
 
 const Result = () => {
     const location = useLocation();
@@ -29,23 +51,23 @@ const Result = () => {
 
     const personInfo = { ...location.state };
 
-    const [tenGod, setTenGod] = useState({});
-    const [pillar, setPillar] = useState({});
-    const [twelveStage, setTwelveStage] = useState([]);
-    const [gongmang, setGongmang] = useState([]);
-    const [sinsal, setSinsal] = useState({});
-    const [sinsal12, setSinsal12] = useState({});
-    const [majorLuck, setMajorLuck] = useState([]);
+    const [tenGod, setTenGod] = useState<FourPillarsTenGods | null>(null);
+    const [pillar, setPillar] = useState<SajuResult["pillars"] | null>(null);
+    const [twelveStage, setTwelveStage] = useState<TwelveStagesResult | null>(null);
+    const [gongmang, setGongmang] = useState<PillarPosition[]>([]);
+    const [sinsal, setSinsal] = useState<Partial<SinsalAnalysisResult["sinsals"]>>({});
+    const [sinsal12, setSinsal12] = useState<Partial<SinsalAnalysisResult["sinsals12"]>>({});
+    const [majorLuck, setMajorLuck] = useState<LuckPillar[]>([]);
     const [selectedMajor, setSelectedMajor] = useState("");
     const [selectedYear, setSelectedYear] = useState("");
-    const [yearLuck, setYearLuck] = useState({});
-    const [monthLuck, setMonthLuck] = useState({});
-    const [graph, setGraph] = useState({});
-    const [tenGodData, setTenGodData] = useState({});
-    const [yearTerms, setYearTerms] = useState({});
-    const [strength, setStrength] = useState({});
-    const [relations, setRelations] = useState({});
-    const [yongshen, setYongshen] = useState({});
+    const [yearLuck, setYearLuck] = useState<Record<string, SajuResult["yearlyLuck"]>>({});
+    const [monthLuck, setMonthLuck] = useState<Record<string, MonthlyLuckItem[]>>({});
+    const [graph, setGraph] = useState<Partial<Record<Element, number>>>({});
+    const [tenGodData, setTenGodData] = useState<Partial<Record<TenGodKey, number>>>({});
+    const [yearTerms, setYearTerms] = useState<Record<string, Record<string, SolarTermEntry>>>({});
+    const [strength, setStrength] = useState<StrengthResult | null>(null);
+    const [relations, setRelations] = useState<RelationsResult | null>(null);
+    const [yongshen, setYongshen] = useState<YongShenResult | null>(null);
 
     const [tab, setTab] = useState(0);
 
@@ -98,8 +120,8 @@ const Result = () => {
         setRelations(relations);
     };
 
-    const saveWuXingData = (saju) => {
-        const ganji = {
+    const saveWuXingData = (saju: string) => {
+        const ganji: Record<Element, number> = {
             wood: 0,
             fire: 0,
             earth: 0,
@@ -107,7 +129,7 @@ const Result = () => {
             water: 0
         };
 
-        let wu = '';
+        let wu: Element;
         for (let i = 0; i < saju.length; i++) {
             if (i % 2 === 0) {
                 wu = getStemElement(saju[i]);
@@ -119,8 +141,8 @@ const Result = () => {
         setGraph(ganji);
     };
 
-    const saveTenGodData = (tenGods) => {
-        const sipsin = {
+    const saveTenGodData = (tenGods: FourPillarsTenGods) => {
+        const sipsin: Record<TenGodKey, number> = {
             companion: 0,
             robWealth: 0,
             eatingGod: 0,
@@ -132,17 +154,21 @@ const Result = () => {
             indirectSeal: 0,
             directSeal: 0
         };
-        const tenGodData = { ...tenGods };
-        delete tenGodData['dayMaster'];
-        for (const i in tenGodData) {
+        const positions: PillarPosition[] = ['year', 'month', 'day', 'hour'];
+        for (const pos of positions) {
+            const stemKey = tenGods[pos].stem.tenGod.key;
             // 일간 예외처리
-            tenGodData[i].stem.tenGod.key === 'dayMaster' ? sipsin['companion'] += 12.5 : sipsin[tenGodData[i].stem.tenGod.key] += 12.5;
-            sipsin[tenGodData[i].branch.tenGod.key] += 12.5;
+            if (stemKey === 'dayMaster') {
+                sipsin.companion += 12.5;
+            } else {
+                sipsin[stemKey] += 12.5;
+            }
+            sipsin[tenGods[pos].branch.tenGod.key] += 12.5;
         }
         setTenGodData(sipsin);
     };
 
-    const changeSelectedMajor = async (startAge) => {
+    const changeSelectedMajor = async (startAge: number) => {
         if (!yearLuck[startAge]) {
             const year = personInfo.birthDate.substring(0, 4);
             const yearlyLuck = await sajuApi.fetchYearlyLuck({
@@ -157,7 +183,7 @@ const Result = () => {
         setSelectedMajor(`major-${startAge}`);
     };
 
-    const changeSelectedYear = async (year) => {
+    const changeSelectedYear = async (year: number) => {
         if (!monthLuck[year]) {
             const monthlyLuck = await sajuApi.fetchMonthlyLuck(year);
             setMonthLuck({
@@ -168,7 +194,7 @@ const Result = () => {
         setSelectedYear(`year-${year}`);
     };
 
-    const getCurrentSolarTerms = async (year) => {
+    const getCurrentSolarTerms = async (year: number) => {
         if (yearTerms[year]) return;
         const solarTerms = await sajuApi.fetchSolarTerms(year);
         setYearTerms({
@@ -192,7 +218,7 @@ const Result = () => {
                 visible={{}}
             />
 
-            {Object.keys(sinsal).length > 0 && Object.keys(sinsal12).length > 0 && (
+            {pillar && strength && Object.keys(sinsal).length > 0 && Object.keys(sinsal12).length > 0 && (
                 <main className="flex flex-col min-h-screen mx-auto relative px-5 pt-4 gap-6">
                     <section className="-mb-4">
                         <ProfileSaveCard info={{ ...personInfo, ...pillar }} />
@@ -227,7 +253,7 @@ const Result = () => {
                         {tab === 0 && (
                             <WuXingGraph
                                 data={graph}
-                                ilgan={getStemElement(pillar?.day[0])}
+                                ilgan={getStemElement(pillar.day[0])}
                                 tenGod={tenGodData}
                             />
                         )}
@@ -237,17 +263,17 @@ const Result = () => {
                     <section className="flex flex-col gap-2">
                         <h2 className="text-xl font-semibold w-fit">대운</h2>
                         <div className="text-left p-4 bg-neutral-100 rounded-lg">
-                            <p className="text-xs text-neutral-950">대운수: {majorLuck[0].startAge}({majorLuck[0].pillar})</p>
+                            <p className="text-xs text-neutral-950">대운수: {majorLuck[0]?.startAge}({majorLuck[0]?.pillar})</p>
                         </div>
-                        <LuckCycleCard luckArr={majorLuck} selected={selectedMajor.substring(6)} callback={changeSelectedMajor} titleProp={'startAge'} ilgan={pillar?.day[0]} />
+                        <LuckCycleCard luckArr={majorLuck} selected={selectedMajor.substring(6)} callback={changeSelectedMajor} titleProp={'startAge'} ilgan={pillar.day[0]} />
                     </section>
                     <section className="flex flex-col gap-2">
                         <h2 className="text-xl font-semibold w-fit">연운</h2>
-                        <LuckCycleCard luckArr={yearLuck[selectedMajor.substring(6)]} selected={selectedYear.substring(5)} callback={changeSelectedYear} titleProp={'year'} ilgan={pillar?.day[0]} />
+                        <LuckCycleCard luckArr={yearLuck[selectedMajor.substring(6)]} selected={selectedYear.substring(5)} callback={changeSelectedYear} titleProp={'year'} ilgan={pillar.day[0]} />
                     </section>
                     <section className="flex flex-col gap-2">
                         <h2 className="text-xl font-semibold w-fit">월운</h2>
-                        <LuckCycleCard luckArr={monthLuck[selectedYear.substring(5)]} selected={selectedYear} titleProp={'month'} ilgan={pillar?.day[0]} />
+                        <LuckCycleCard luckArr={monthLuck[selectedYear.substring(5)]} selected={selectedYear} titleProp={'month'} ilgan={pillar.day[0]} />
                     </section>
                     <section>
                         <h2 className="text-xl font-semibold w-fit">일진 달력</h2>
@@ -269,7 +295,7 @@ const Result = () => {
                             }}
                             components={{
                                 DayButton: ({ children, modifiers, day, ...props }) => {
-                                    const [toYear, toMonth, toDay] = day.isoDate.split('-');
+                                    const [toYear, toMonth, toDay] = day.isoDate.split('-').map(Number);
                                     const lunarDate = getLunarDate(toYear, toMonth, toDay);
                                     return (
                                         <CalendarDayButton day={day} modifiers={modifiers} {...props}>
